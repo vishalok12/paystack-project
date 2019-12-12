@@ -1,0 +1,111 @@
+{
+  "name": "paystack-project",
+  "version": "0.0.1",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vishalok12/paystack-project.git"
+  },
+  "author": "Vishal Kumar <vishal.rgiit@gmail.com>",
+  "scripts": {
+    "start": "NODE_ENV=development node --require dotenv/config ./dist/server.js",
+    "watch-node": "nodemon --require dotenv/config dist/server.js",
+    "watch": "NODE_ENV=development concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
+    "build-ts": "tsc",
+    "watch-ts": "tsc -w",
+    "lint": "eslint --config ./.eslintrc src/**/*.ts test/**/*.ts",
+    "tslint": "tslint -c tslint.json -p tsconfig.json",
+    "lint:fix": "npm run lint -- --fix",
+    "check-coverage": "nyc check-coverage",
+    "build": "npm run lint && npm run test-coverage && npm run check-coverage && npm run build-ts",
+    "test": "NODE_ENV=test ts-mocha -p tsconfig.json --require test-entry.ts test/**/*.spec.ts --exit",
+    "int-test": "NODE_ENV=test ts-mocha -p tsconfig.json --require test-entry.ts integration-test/**/*.spec.ts --exit",
+    "test-coverage": "NODE_ENV=test TS_NODE_PROJECT=tsconfig.json nyc ts-mocha --require source-map-support/register --require test-entry.ts test/**/*.spec.ts --exit",
+    "docker:build": "TRACK=development docker build -t paystack-project .",
+    "docker:run": "docker run -p 3000:80 --env-file ./.env --name paystack-project-app paystack-project",
+    "docker:stop": "docker stop paystack-project-app"
+  },
+  "nyc": {
+    "lines": 65,
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "copyStaticAssets.js",
+      "test-entry.ts",
+      "coverage/*",
+      "dist/*",
+      "build/*",
+      "src/routes/*",
+      "src/services/apiPaths.ts",
+      "src/controllers/allaboard.ts",
+      "src/controllers/selfserve.ts",
+      "src/services/APIService.js",
+      "**/*.spec.ts"
+    ],
+    "reporter": [
+      "html",
+      "lcov",
+      "text"
+    ],
+    "all": true
+  },
+  "lint-staged": {
+    "*.{js,ts}": "eslint",
+    "*.ts": "tslint"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged && npm run test-coverage && npm run check-coverage"
+    }
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "dependencies": {
+    "app-module-path": "^2.2.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "morgan": "^1.9.1",
+    "prom-client": "^11.5.3",
+    "request": "^2.88.0",
+    "uuid": "^3.3.2",
+    "winston": "^3.2.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/chai-http": "^3.0.5",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/on-finished": "^2.3.1",
+    "@types/express": "^4.16.1",
+    "@types/mocha": "^5.2.6",
+    "@types/morgan": "^1.7.35",
+    "@types/nock": "^9.3.1",
+    "@types/node": "^10.12.21",
+    "@types/sinon": "^7.0.6",
+    "@types/uuid": "^3.4.4",
+    "@types/winston": "^2.4.4",
+    "@typescript-eslint/eslint-plugin": "^1.4.0",
+    "@typescript-eslint/parser": "^1.4.0",
+    "@typescript-eslint/typescript-estree": "^1.4.0",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "chai-http": "^4.2.1",
+    "concurrently": "^4.1.0",
+    "cookiejar": "^2.1.2",
+    "dotenv": "^8.0.0",
+    "eslint": "^5.14.1",
+    "husky": "^1.3.1",
+    "lint-staged": "^8.1.4",
+    "mocha": "^5.2.0",
+    "nodemon": "^1.18.9",
+    "nyc": "^13.3.0",
+    "sinon": "^7.2.4",
+    "source-map-support": "^0.5.10",
+    "ts-mocha": "^2.0.0",
+    "tslint": "^5.12.1",
+    "typescript": "^3.3.1"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "project": "./tsconfig.json",
+    "ecmaFeatures": {
+      "jsx": false
+    },
+    "sourceType": "module"
+  },
+  "plugins": ["@typescript-eslint"],
+  "env": {
+    "node" : true
+  },
+  "rules": {
+    "@typescript-eslint/no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
+    "indent": 0,
+    "@typescript-eslint/indent": ["error", 2],
+    "no-console"           : 2,
+    "operator-linebreak"   : 0,
+    "keyword-spacing"      : 0,
+    "key-spacing"          : 0,
+    "max-len"              : 0,
+    "space-before-function-paren": 0,
+    "no-use-before-define": ["error", { "functions": false, "classes": true }],
+    "space-in-parens": ["error", "never"],
+    "comma-spacing": ["error", { "before": false, "after": true }],
+    "no-multi-spaces": ["error", { "ignoreEOLComments": true }]
+  }
+}

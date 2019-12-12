@@ -1,0 +1,18 @@
+.DS_STORE
+*.log
+
+node_modules
+
+dist
+coverage
+build
+.nyc_output
+
+.idea/
+ npm-debug.log.*
+
+.env
+
+# Adding this for developers to keep personal
+# information with the cloned copy of project
+*.ignore
