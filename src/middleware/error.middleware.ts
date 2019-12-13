@@ -9,12 +9,8 @@ export enum ErrorTypes {
 
 export async function errorMiddleware(err: HTTPError, req: Request, res: Response, next: NextFunction) {
   req.logger.error('inside error middleware', { error: err.message });
-  res.writeHead(500, {
-    'content-type': 'application/json',
-  });
-  return res.send({
-    error: {
-      message: err.message,
-    },
-  });
+  res.status(err.status || 500);
+  res.json({'error': {
+    message: err.message,
+  }});
 }

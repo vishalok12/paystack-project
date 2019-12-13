@@ -1,6 +1,7 @@
 import { Router } from 'express';
-import { moviesHandler } from 'controllers/movies.controller';
-
+import { movieRouter } from './movies';
+import { characterRouter } from './characters';
 export const apiRouter = Router();
 
-apiRouter.use('/', moviesHandler);
+apiRouter.use('/movies', movieRouter);
+apiRouter.use('/characters', characterRouter);
