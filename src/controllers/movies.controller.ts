@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { getMovies, Movie, MoviesData, getMovie } from 'services/swapiService';
+import { fetchComments, postComment, fetchMovieCommentsCount } from 'services/commentsService';
 
-function movieResponseFn(movieData: Movie) {
+interface MovieWithComments extends Movie {
+  comments_count: string;
+}
+
+function movieResponseFn(movieData: MovieWithComments) {
   const {
     title,
     opening_crawl,
@@ -9,6 +14,7 @@ function movieResponseFn(movieData: Movie) {
     director,
     producer,
     episode_id,
+    comments_count,
   } = movieData;
 
   return {
@@ -18,24 +24,42 @@ function movieResponseFn(movieData: Movie) {
     created,
     director,
     producer,
+    comments_count,
   }
 }
 
-function sortMovies(movies: MoviesData): MoviesData {
-  movies.results = movies.results.sort((m1, m2) => {
+function sortMovies(movies: Movie[]): Movie[] {
+  movies = movies.sort((m1, m2) => {
     return new Date(m2.created).getTime() - new Date(m1.created).getTime()
   })
 
   return movies;
 }
 
+async function fetchMovieComments(movies: Movie[]): Promise<MovieWithComments[]> {
+  const commentsCountPromises = movies.map(movie => {
+    return fetchMovieCommentsCount(movie.episode_id);
+  })
+
+  const commentsCount = await Promise.all(commentsCountPromises);
+
+
+  return movies.map((movie, index) => {
+    const movieWithComments: MovieWithComments = (movie as MovieWithComments);
+    movieWithComments.comments_count = commentsCount[index];
+
+    return movieWithComments;
+  });
+}
+
 export function moviesHandler(req: Request, res: Response, next: NextFunction) {
   getMovies(req)
     .then(sortMovies)
-    .then(response => {
+    .then(fetchMovieComments)
+    .then(results => {
       res.send({
-        results: response.results.map(movieResponseFn),
-        count: response.count,
+        results: results.map(movieResponseFn),
+        count: results.length,
       })
     })
     .catch(e => {
@@ -49,4 +73,37 @@ export function movieHandler(req: Request, res: Response, next: NextFunction) {
     .then(response => {
       res.send(movieResponseFn(response));
     })
+    .catch(e => {
+      next(e);
+    });
+}
+
+export function movieCommentsHandler(req: Request, res: Response, next: NextFunction) {
+  const movieEpisodeId = Number(req.params.movieEpisodeId);
+  fetchComments(req, movieEpisodeId)
+    .then(comments => {
+      res.send({
+        results: comments,
+        count: comments.count,
+      });
+    })
+    .catch((e: Error) => next(e));
+}
+
+export function movieCommentsPostHandler(req: Request, res: Response, next: NextFunction) {
+  const movieEpisodeId = Number(req.params.movieEpisodeId);
+  const message = req.body.message;
+
+  if (message.length > 500) {
+    res.status(400);
+    return res.send({
+      error: 'message length too long',
+    })
+  }
+
+  postComment(req, movieEpisodeId, message)
+    .then(comment => {
+      res.send(comment);
+    })
+    .catch((e: Error) => next(e));
 }

@@ -12,6 +12,7 @@ import { AggregatorRegistry } from 'prom-client';
 import * as express from 'express';
 
 import * as http from 'http';
+import { sequelize } from 'models/comments';
 
 const port = normalizePort(process.env.PORT || '3000');
 const aggregatorRegistry = new AggregatorRegistry();
@@ -132,8 +133,12 @@ const setupApp = () => {
    * Listen on provided port, on all network interfaces.
    */
 
-  server.listen(port);
-  server.on('error', onError);
+  sequelize.sync().then(() => {
+    server.listen(port);
+    server.on('error', onError);
+  }).catch(e => {
+    console.log(e);
+  })
 
   /**
    * Event listener for HTTP server "listening" event.

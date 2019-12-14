@@ -53,12 +53,21 @@ function parseCharactersList(list: Character[]): Character[] {
   })
 }
 
-export function getMovies(req: Request) {
+export async function getMovies(req: Request) {
   req.logger.debug('fetching movies list');
-  return swapiClient.get<MoviesData>('/films').then(response => {
-    req.logger.debug('movies response came');
-    return response.data;
-  });
+  let results: Movie[] = [];
+
+  let response = await swapiClient.get<MoviesData>('/films');
+  results = results.concat(response.data.results);
+
+  while (response.data.next) {
+    response = await swapiClient.get<MoviesData>(response.data.next);
+    results = results.concat(response.data.results);
+  }
+
+  req.logger.debug('movies response came');
+
+  return results;
 }
 
 export function getMovie(req: Request, id: string) {
