@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
-import { getMovies, Movie, MoviesData, getMovie } from 'services/swapiService';
-import { fetchComments, postComment, fetchMovieCommentsCount } from 'services/commentsService';
+import { getMovies, Movie, getMovie } from 'services/swapiService';
+import { fetchComments, postComment, fetchMovieCommentsCount, Comment } from 'services/commentsService';
 
 interface MovieWithComments extends Movie {
   comments_count: string;
@@ -34,6 +34,12 @@ function sortMovies(movies: Movie[]): Movie[] {
   })
 
   return movies;
+}
+
+function sortComments(comments: Comment[]): Comment[] {
+  return comments.sort((c1, c2) => {
+    return new Date(c2.createdAt).getTime() - new Date(c1.createdAt).getTime()
+  })
 }
 
 async function fetchMovieComments(movies: Movie[]): Promise<MovieWithComments[]> {
@@ -81,10 +87,11 @@ export function movieHandler(req: Request, res: Response, next: NextFunction) {
 export function movieCommentsHandler(req: Request, res: Response, next: NextFunction) {
   const movieEpisodeId = Number(req.params.movieEpisodeId);
   fetchComments(req, movieEpisodeId)
-    .then(comments => {
+    .then(sortComments)
+    .then((comments: Comment[]) => {
       res.send({
         results: comments,
-        count: comments.count,
+        count: comments.length,
       });
     })
     .catch((e: Error) => next(e));

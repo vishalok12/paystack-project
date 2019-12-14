@@ -1,12 +1,21 @@
 import { Comment, MovieComments } from 'models/comments';
 import { Request } from 'express';
 
+export interface Comment {
+  id: number,
+  message: string,
+  movieEpisodeId: number,
+  ipAddress: string,
+  createdAt: string,
+  updatedAt: string
+}
+
 export function fetchComments(req: Request, movieEpisodeId: number) {
   return Comment.findAll({
     where: {
       movieEpisodeId,
     },
-  }).then(comments => {
+  }).then((comments: Comment[]) => {
     return comments;
   })
 }
