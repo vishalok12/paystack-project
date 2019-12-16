@@ -116,7 +116,7 @@ const setupWorkerProcesses = () => {
   logger.info(`Cluster metrics server listening to ${metricsPort}, metrics exposed on /cluster_metrics`);
 };
 
-const setupApp = () => {
+const setupApp = async () => {
   /**
    * Get port from environment and store in Express.
    */
@@ -133,12 +133,14 @@ const setupApp = () => {
    * Listen on provided port, on all network interfaces.
    */
 
-  sequelize.sync().then(() => {
+  try {
+    await sequelize.sync();
     server.listen(port);
     server.on('error', onError);
-  }).catch(e => {
-    console.log(e);
-  })
+  } catch (e) {
+    logger.error(e);
+    process.exit(1);
+  }
 
   /**
    * Event listener for HTTP server "listening" event.

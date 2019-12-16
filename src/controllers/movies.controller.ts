@@ -58,59 +58,64 @@ async function fetchMovieComments(movies: Movie[]): Promise<MovieWithComments[]>
   });
 }
 
-export function moviesHandler(req: Request, res: Response, next: NextFunction) {
-  getMovies(req)
-    .then(sortMovies)
-    .then(fetchMovieComments)
-    .then(results => {
-      res.send({
-        results: results.map(movieResponseFn),
-        count: results.length,
-      })
-    })
-    .catch(e => {
-      req.logger.error(`Error while fetching movies. Error: ${e.message}`)
-      next(e);
-    });
-}
+export async function moviesHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const movies = await getMovies(req);
+    const sortedMovies = sortMovies(movies);
+    const moviesWithComments = await fetchMovieComments(sortedMovies);
 
-export function movieHandler(req: Request, res: Response, next: NextFunction) {
-  getMovie(req, req.params.movieId)
-    .then(response => {
-      res.send(movieResponseFn(response));
-    })
-    .catch(e => {
-      next(e);
-    });
-}
-
-export function movieCommentsHandler(req: Request, res: Response, next: NextFunction) {
-  const movieEpisodeId = Number(req.params.movieEpisodeId);
-  fetchComments(req, movieEpisodeId)
-    .then(sortComments)
-    .then((comments: Comment[]) => {
-      res.send({
-        results: comments,
-        count: comments.length,
-      });
-    })
-    .catch((e: Error) => next(e));
-}
-
-export function movieCommentsPostHandler(req: Request, res: Response, next: NextFunction) {
-  const movieEpisodeId = Number(req.params.movieEpisodeId);
-  const message = req.body.message;
-
-  if (message.length > 500) {
-    res.status(400);
     return res.send({
-      error: 'message length too long',
-    })
+      results: moviesWithComments.map(movieResponseFn),
+      count: moviesWithComments.length,
+    });
+  } catch (e) {
+    req.logger.error(`Error while fetching movies. Error: ${e.message}`)
+    return next(e);
   }
+}
 
-  postComment(req, movieEpisodeId, message)
-    .then(comment => {
-      res.send(comment);
-    })
-    .catch((e: Error) => next(e));
+export async function movieHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const movie = await getMovie(req, req.params.movieId);
+    (movie as MovieWithComments).comments_count = await fetchMovieCommentsCount(movie.episode_id);
+
+    return res.send(movieResponseFn(movie as MovieWithComments));
+  } catch (e) {
+    return next(e);
+  }
+}
+
+export async function movieCommentsHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const movieEpisodeId = Number(req.params.movieEpisodeId);
+    const comments = await fetchComments(req, movieEpisodeId);
+    const sortedComments = sortComments(comments);
+
+    return res.send({
+      results: sortedComments,
+      count: sortedComments.length,
+    });
+  } catch (e) {
+    return next(e);
+  }
+}
+
+export async function movieCommentsPostHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    const movieEpisodeId = Number(req.params.movieEpisodeId);
+    const message = req.body.message;
+
+    if (message.length > 500) {
+      res.status(400);
+
+      return res.send({
+        error: 'message length too long',
+      })
+    }
+
+    const comment = await postComment(req, movieEpisodeId, message);
+    return res.send(comment);
+  } catch (e) {
+    return next(e);
+  }
 }

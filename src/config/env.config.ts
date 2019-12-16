@@ -1,3 +1,5 @@
+import { logger } from 'services/loggerService';
+
 function isEnvTrue(env: string | undefined): boolean {
   if (!env) { return false; }
 
@@ -8,7 +10,15 @@ function isEnvTrue(env: string | undefined): boolean {
   return true;
 }
 
+function checkForEnv(env: string | undefined) {
+  if (!env) {
+    logger.error(`Please provide required environment variable`);
+    process.exit(1);
+  }
+}
+
 export const METRICS_ENABLED = isEnvTrue(process.env.METRICS_ENABLED) ? true : false
 
-export const DB_USERNAME = process.env.DB_USERNAME
+checkForEnv( process.env.DB_USERNAME);
+export const DB_USERNAME = process.env.DB_USERNAME!
 export const DB_PASSWORD = process.env.DB_PASSWORD

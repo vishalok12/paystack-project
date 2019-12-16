@@ -10,14 +10,14 @@ export interface Comment {
   updatedAt: string
 }
 
-export function fetchComments(req: Request, movieEpisodeId: number) {
-  return Comment.findAll({
+export async function fetchComments(req: Request, movieEpisodeId: number) {
+  const comments = await Comment.findAll({
     where: {
       movieEpisodeId,
     },
-  }).then((comments: Comment[]) => {
-    return comments;
   })
+
+  return comments;
 }
 
 export async function postComment(req: Request, movieEpisodeId: number, message: string) {

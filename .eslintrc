@@ -23,7 +23,7 @@
     "max-len"              : 0,
     "space-before-function-paren": 0,
     "no-use-before-define": ["error", { "functions": false, "classes": true }],
-    "space-in-parens": ["error", "never"],
+    // "space-in-parens": ["error", "never"],
     "comma-spacing": ["error", { "before": false, "after": true }],
     "no-multi-spaces": ["error", { "ignoreEOLComments": true }]
   }

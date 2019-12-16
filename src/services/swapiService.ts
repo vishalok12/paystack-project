@@ -70,13 +70,17 @@ export async function getMovies(req: Request) {
   return results;
 }
 
-export function getMovie(req: Request, id: string) {
-  req.logger.debug(`fetching movie with id: ${id}`);
+export async function getMovie(req: Request, id: string) {
+  try {
+    req.logger.debug(`fetching movie with id: ${id}`);
 
-  return swapiClient.get<Movie>(`/films/${id}`).then(response => {
+    const response = await swapiClient.get<Movie>(`/films/${id}`);
     req.logger.debug(`received movie response with id: ${id}`);
     return response.data;
-  })
+  } catch (e) {
+    req.logger.error(`Error while fetching movie with id: ${id}`)
+    throw e;
+  }
 }
 
 export async function getCharacterListForMovieId(req: Request, movieId: string) {

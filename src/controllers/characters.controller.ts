@@ -43,27 +43,30 @@ function sortFn<T>(sortProperty: string | undefined) {
     const isReverse = sortProperty[0] === '-';
     sortProperty = sortProperty[0] === '-' ? sortProperty.substr(1) : sortProperty;
 
+    // @ts-ignore
     return arraySort(list, sortProperty, { reverse: isReverse })
   }
 }
 
-export function charactersHandler(req: Request, res: Response, next: NextFunction) {
-  let sortProperty = req.query.sort;
-  const movieId = req.params.movieId;
+export async function charactersHandler(req: Request, res: Response, next: NextFunction) {
+  try {
+    let sortProperty = req.query.sort;
+    const movieId = req.params.movieId;
 
-  if (Array.isArray(sortProperty)) {
-    sortProperty = sortProperty[0]
+    if (Array.isArray(sortProperty)) {
+      sortProperty = sortProperty[0]
+    }
+
+    const characterList = await getCharacterListForMovieId(req, movieId);
+    const characterFormattedList = characterResponseFn(characterList);
+    const filteredCharacterList = filterFn('gender', req.query.gender)(characterFormattedList);
+    const sortedCharacterList = sortFn(sortProperty)(filteredCharacterList);
+
+    res.send({
+      results: sortedCharacterList,
+      total: sortedCharacterList.length,
+    });
+  } catch (e) {
+    next(e);
   }
-
-  getCharacterListForMovieId(req, movieId)
-    .then(characterResponseFn)
-    .then(filterFn('gender', req.query.gender))
-    .then(sortFn(sortProperty))
-    .then(response => {
-      res.send({
-        results: response,
-        total: response.length,
-      });
-    })
-    .catch(e => next(e))
 }
