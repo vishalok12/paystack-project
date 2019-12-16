@@ -1,5 +1,6 @@
 import * as axiosClient from 'axios';
 import { Request } from 'express';
+import { getRedisClient } from './redisService';
 
 const swapiClient = axiosClient.default.create({
   baseURL: 'https://swapi.co/api/',
@@ -44,6 +45,28 @@ export interface CharacterListData {
   results: Character[]
 }
 
+async function swapiClientGet<T>(req: Request, url: string) {
+  const redisClient = await getRedisClient();
+  try {
+    const value = await redisClient.get(req, url);
+
+    if (value !== null) {
+      return JSON.parse(value);
+    }
+
+    req.logger.debug(`Not available in cache: ${url}. Hitting API`);
+    const result = await swapiClient.get<T>(url);
+
+    req.logger.debug(`Got response for API: ${url}`);
+    redisClient.save(req, url, JSON.stringify(result.data));
+
+    return result.data;
+  } catch (e) {
+    throw e;
+
+  }
+}
+
 function parseCharactersList(list: Character[]): Character[] {
   return list.map(character => {
     character.height_in_cm = Number(character.height);
@@ -57,12 +80,12 @@ export async function getMovies(req: Request) {
   req.logger.debug('fetching movies list');
   let results: Movie[] = [];
 
-  let response = await swapiClient.get<MoviesData>('/films');
-  results = results.concat(response.data.results);
+  let data = await swapiClientGet<MoviesData>(req, '/films');
+  results = results.concat(data.results);
 
-  while (response.data.next) {
-    response = await swapiClient.get<MoviesData>(response.data.next);
-    results = results.concat(response.data.results);
+  while (data.next) {
+    data = await swapiClientGet<MoviesData>(req, data.next);
+    results = results.concat(data.results);
   }
 
   req.logger.debug('movies response came');
@@ -74,9 +97,9 @@ export async function getMovie(req: Request, id: string) {
   try {
     req.logger.debug(`fetching movie with id: ${id}`);
 
-    const response = await swapiClient.get<Movie>(`/films/${id}`);
+    const data = await swapiClientGet<Movie>(req, `/films/${id}`);
     req.logger.debug(`received movie response with id: ${id}`);
-    return response.data;
+    return data;
   } catch (e) {
     req.logger.error(`Error while fetching movie with id: ${id}`)
     throw e;
@@ -84,17 +107,17 @@ export async function getMovie(req: Request, id: string) {
 }
 
 export async function getCharacterListForMovieId(req: Request, movieId: string) {
-  req.logger.debug(`fetching characters`);
   let results: Character[] = [];
 
   const movie = await getMovie(req, movieId);
-  const charactersPromise = movie.characters.map(characterAPIPath => {
-    return swapiClient.get<Character>(characterAPIPath)
+
+  req.logger.debug(`fetching characters`);
+
+  const charactersPromise = movie.characters.map((characterAPIPath: string) => {
+    return swapiClientGet<Character>(req, characterAPIPath)
   });
 
-  const responseList = await Promise.all(charactersPromise);
-
-  results = responseList.map(response => response.data);
+  results = await Promise.all(charactersPromise);
 
   req.logger.debug(`received characters`);
 

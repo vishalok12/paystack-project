@@ -9,7 +9,8 @@ import { logger } from './services/loggerService';
 // var http = require('http');
 
 import * as http from 'http';
-import { sequelize } from 'models/comments';
+import { sequelize } from './models/comments';
+import { getRedisClient } from './services/redisService';
 
 const port = normalizePort(process.env.PORT || '3000');
 
@@ -80,6 +81,7 @@ const setupApp = async () => {
 
   try {
     await sequelize.sync();
+    await getRedisClient();
     server.listen(port);
     server.on('error', onError);
   } catch (e) {
