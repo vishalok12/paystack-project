@@ -4,18 +4,14 @@
  * Module dependencies.
  */
 require('app-module-path').addPath(__dirname);
-import * as cluster from 'cluster';
 import { app } from './app';
 import { logger } from './services/loggerService';
 // var http = require('http');
-import { AggregatorRegistry } from 'prom-client';
-import * as express from 'express';
 
 import * as http from 'http';
 import { sequelize } from 'models/comments';
 
 const port = normalizePort(process.env.PORT || '3000');
-const aggregatorRegistry = new AggregatorRegistry();
 
 /**
  * Normalize a port into a number, string, or false.
@@ -64,57 +60,6 @@ function onError(error: NodeJS.ErrnoException) {
       throw error;
   }
 }
-
-const workers: Array<cluster.Worker> = [];
-
-/**
- * Setup number of worker processes to share port which will be defined while setting up server
- */
-const setupWorkerProcesses = () => {
-  const metricsServer = express();
-  // to read number of cores on system
-  const numCores = require('os').cpus().length;
-  logger.info('Master cluster setting up ' + numCores + ' workers');
-
-  // iterate on number of cores need to be utilized by an application
-  // current example will utilize all of them
-  for (let i = 0; i < numCores; i++) {
-    // creating workers and pushing reference in an array
-    // these references can be used to receive messages from workers
-    workers.push(cluster.fork());
-  }
-
-  // process is clustered on a core and process id is assigned
-  cluster.on('online', function (worker) {
-    logger.info('Worker ' + worker.process.pid + ' is listening');
-  });
-
-  // if any of the worker process dies then start a new one by simply forking another one
-  cluster.on('exit', function (worker, code, signal) {
-    logger.info('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
-    logger.info('Starting a new worker');
-    cluster.fork();
-    workers.push(cluster.fork());
-    // to receive messages from worker process
-    workers[workers.length - 1].on('message', function (message) {
-      logger.info(message);
-    });
-  });
-
-  // Handle metrics aggregation
-  metricsServer.get('/cluster_metrics', (req: express.Request, res: express.Response) => {
-    aggregatorRegistry.clusterMetrics((err, metrics) => {
-      if (err) logger.error(err);
-      res.set('Content-Type', aggregatorRegistry.contentType);
-      res.send(metrics);
-    });
-  });
-
-  const metricsPort = Number(process.env.METRICS_PORT || 3001);
-
-  metricsServer.listen(metricsPort);
-  logger.info(`Cluster metrics server listening to ${metricsPort}, metrics exposed on /cluster_metrics`);
-};
 
 const setupApp = async () => {
   /**
@@ -175,21 +120,5 @@ const setupApp = async () => {
   })
 }
 
-/**
- * Setup server either with clustering or without it
- * @param isClusterRequired
- * @constructor
- */
-const setupServer = () => {
-  const isClusterRequired = process.env.CLUSTER_MODE === '1';
 
-  // if it is a master process then call setting up worker process
-  if (isClusterRequired && cluster.isMaster) {
-    setupWorkerProcesses();
-  } else {
-    // to setup server configurations and share port address for incoming requests
-    setupApp();
-  }
-};
-
-setupServer();
+setupApp();
