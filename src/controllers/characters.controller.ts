@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getCharacterList, Character } from 'services/swapiService';
+import { Character, getCharacterListForMovieId } from 'services/swapiService';
 import arraySort = require('array-sort');
 
 function characterResponseFn(characters: Character[]) {
@@ -49,11 +49,13 @@ function sortFn<T>(sortProperty: string | undefined) {
 
 export function charactersHandler(req: Request, res: Response, next: NextFunction) {
   let sortProperty = req.query.sort;
+  const movieId = req.params.movieId;
+
   if (Array.isArray(sortProperty)) {
     sortProperty = sortProperty[0]
   }
 
-  getCharacterList(req)
+  getCharacterListForMovieId(req, movieId)
     .then(characterResponseFn)
     .then(filterFn('gender', req.query.gender))
     .then(sortFn(sortProperty))

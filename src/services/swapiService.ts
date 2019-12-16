@@ -79,17 +79,18 @@ export function getMovie(req: Request, id: string) {
   })
 }
 
-export async function getCharacterList(req: Request) {
+export async function getCharacterListForMovieId(req: Request, movieId: string) {
   req.logger.debug(`fetching characters`);
   let results: Character[] = [];
 
-  let response = await swapiClient.get<CharacterListData>('/people')
-  results = results.concat(response.data.results);
+  const movie = await getMovie(req, movieId);
+  const charactersPromise = movie.characters.map(characterAPIPath => {
+    return swapiClient.get<Character>(characterAPIPath)
+  });
 
-  while (response.data.next) {
-    response = await swapiClient.get<CharacterListData>(response.data.next);
-    results = results.concat(response.data.results);
-  }
+  const responseList = await Promise.all(charactersPromise);
+
+  results = responseList.map(response => response.data);
 
   req.logger.debug(`received characters`);
 
