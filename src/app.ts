@@ -3,6 +3,7 @@ import express = require('express');
 import { Request, Response, NextFunction } from 'express';
 import * as morgan from 'morgan';
 import * as bodyParser from 'body-parser';
+import * as swaggerUi from 'swagger-ui-express';
 
 import { requestIdMiddleware } from './middleware/requestId.middleware';
 import { contextLoggerMiddleware } from './middleware/contextLogger.middleware';
@@ -15,6 +16,10 @@ import { metricsMiddleware } from './middleware/metrics.middleware';
 export const app = express();
 
 app.disable('x-powered-by');
+
+// app.set('view engine', 'html');
+// app.set('views', path.join(__dirname, 'public'));
+// app.use('/api-docs', express.static(path.join(__dirname, 'public')));
 
 morgan.token('reqId', function getId(req: Request) {
   return req.requestId
@@ -31,6 +36,12 @@ app.use(metricsMiddleware);
 app.use(requestIdMiddleware);
 app.use(contextLoggerMiddleware);
 
+// app.get('/api-docs', function (req: Request, res: Response) {
+//   res.header('Content-Type', 'text/html');
+//   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
+const swaggerDocument = require('./public/swagger.json');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.use(router);
 
 // catch 404 and forward to error handler

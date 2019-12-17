@@ -1,0 +1,140 @@
+{
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "schemes": [
+    "http"
+  ],
+  "swagger": "2.0",
+  "info": {
+    "description": "The project exposes APIs for movies/characters/movies comments from swapi API",
+    "title": "PAYSTACK-PROJECT",
+    "contact": {
+      "name": "Vishal Kumar",
+      "email": "vishal.rgiit@gmail.com"
+    },
+    "version": "0.0.1"
+  },
+  "host": "localhost:3000",
+  "basePath": "/api",
+  "paths": {
+    "/movies": {
+      "get": {
+        "description": "It returns movies list sorted by release date from earliest to newest",
+        "tags": [
+          "movies"
+        ],
+        "summary": "Movie Get Handler",
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/movies/{movieId}/characters": {
+      "get": {
+        "description": "It returns character list",
+        "tags": [
+          "characters"
+        ],
+        "summary": "Characters Get Handler",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "movieId",
+            "required": true,
+            "type": "string",
+            "description": "movie id for list of characters"
+          }, {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "type": "string",
+            "description": "sorting order"
+          }, {
+            "in": "query",
+            "name": "gender",
+            "required": false,
+            "type": "string",
+            "description": "filter by gender"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/movies/{movieEpisodeId}/comments": {
+      "get": {
+        "description": "It returns movie comments in reverse chronological order",
+        "tags": [
+          "comments"
+        ],
+        "summary": "Comments Get Handler",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "movieEpisodeId",
+            "required": true,
+            "type": "string",
+            "description": "movie episode id for list of comments"
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "description": "It creates comment for a movie",
+        "tags": [
+          "comments"
+        ],
+        "summary": "Comments Post Handler",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "movieEpisodeId",
+            "required": true,
+            "type": "string",
+            "description": "episode id for movie to comment"
+          }, {
+            "in": "body",
+            "name": "comment",
+            "schema": {
+              "$ref": "#/definitions/Comment"
+            }
+          }
+        ],
+        "produces": ["application/json"],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Comment": {
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+  }
+}

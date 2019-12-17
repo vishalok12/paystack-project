@@ -13,6 +13,7 @@ COPY . .
 
 RUN npm run lint
 RUN npm run build-ts
+RUN npm run copy-static-assets
 
 FROM node:10
 
