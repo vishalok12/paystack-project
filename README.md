@@ -13,6 +13,12 @@ $ npm run watch
 ```
 4. The default port is 3000 where server runs. You can pass PORT as environment variable to run in different port.
 
+## Run using docker-compose
+$ docker-compose up
+
+## API Documentation
+Open http://localhost:3000/api-docs
+
 ## APIs
 1. Fetch movie list:
 ```
