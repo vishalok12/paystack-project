@@ -1,15 +1,6 @@
 import { Comment, MovieComments } from 'models/comments';
 import { Request } from 'express';
 
-export interface Comment {
-  id: number,
-  message: string,
-  movieEpisodeId: number,
-  ipAddress: string,
-  createdAt: string,
-  updatedAt: string
-}
-
 export async function fetchComments(req: Request, movieEpisodeId: number) {
   const comments = await Comment.findAll({
     where: {

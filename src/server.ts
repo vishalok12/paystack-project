@@ -96,7 +96,7 @@ const setupApp = async () => {
     const addr = server.address();
     const bind = typeof addr === 'string'
       ? 'pipe ' + addr
-      : 'port ' + addr.port;
+      : (addr !== null ? 'port ' + addr.port : '');
     logger.info(`Server running on PORT: ${bind} with env: ${process.env.NODE_ENV}`);
   });
 

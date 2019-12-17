@@ -13,7 +13,7 @@
     "watch": "NODE_ENV=development concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"npm run watch-ts\" \"npm run watch-node\"",
     "build-ts": "tsc",
     "watch-ts": "tsc -w",
-    "lint": "eslint --config ./.eslintrc src/**/*.ts test/**/*.ts",
+    "lint": "eslint --config ./.eslintrc src/**/*.ts",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "npm run lint -- --fix",
     "check-coverage": "nyc check-coverage",
@@ -21,7 +21,7 @@
     "test": "NODE_ENV=test ts-mocha -p tsconfig.json --require test-entry.ts test/**/*.spec.ts --exit",
     "int-test": "NODE_ENV=test ts-mocha -p tsconfig.json --require test-entry.ts integration-test/**/*.spec.ts --exit",
     "test-coverage": "NODE_ENV=test TS_NODE_PROJECT=tsconfig.json nyc ts-mocha --require source-map-support/register --require test-entry.ts test/**/*.spec.ts --exit",
-    "docker:build": "TRACK=development docker build -t paystack-project .",
+    "docker:build": "docker build -t paystack-project .",
     "docker:run": "docker run -p 3000:80 --env-file ./.env --name paystack-project-app paystack-project",
     "docker:stop": "docker stop paystack-project-app"
   },
@@ -81,6 +81,7 @@
   },
   "devDependencies": {
     "@types/array-sort": "^1.0.0",
+    "@types/bluebird": "^3.5.29",
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
     "@types/chai-http": "^3.0.5",
@@ -88,11 +89,12 @@
     "@types/mocha": "^5.2.6",
     "@types/morgan": "^1.7.35",
     "@types/nock": "^9.3.1",
-    "@types/node": "^10.12.21",
+    "@types/node": "^12.12.18",
     "@types/on-finished": "^2.3.1",
     "@types/redis": "^2.8.14",
     "@types/sinon": "^7.0.6",
     "@types/uuid": "^3.4.4",
+    "@types/validator": "^12.0.1",
     "@types/winston": "^2.4.4",
     "@typescript-eslint/eslint-plugin": "^1.4.0",
     "@typescript-eslint/parser": "^1.4.0",
@@ -113,6 +115,6 @@
     "source-map-support": "^0.5.10",
     "ts-mocha": "^2.0.0",
     "tslint": "^5.12.1",
-    "typescript": "^3.3.1"
+    "typescript": "^3.7.3"
   }
 }

@@ -1,11 +1,30 @@
-import { Sequelize, DataTypes } from 'sequelize';
+import { Sequelize, DataTypes, Model } from 'sequelize';
 import { DB_USERNAME, DB_PASSWORD } from 'config/env.config';
 
 export const sequelize = new Sequelize('paystackdb', DB_USERNAME, DB_PASSWORD, {
   dialect: 'postgres',
 })
 
-export const Comment = sequelize.define('Comment', {
+export class Comment extends Model {
+  public id!: number;
+  public message!: string;
+  public movieEpisodeId!: number;
+  public ipAddress!: string;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+export class MovieComments extends Model {
+  public id!: number;
+  public movieEpisodeId!: number;
+  public commentsCount!: number;
+
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
+}
+
+Comment.init({
   id: {
     type: DataTypes.BIGINT,
     primaryKey: true,
@@ -14,9 +33,12 @@ export const Comment = sequelize.define('Comment', {
   message: DataTypes.STRING,
   movieEpisodeId: DataTypes.INTEGER,
   ipAddress: DataTypes.STRING,
-})
+}, {
+  sequelize,
+  tableName: 'comments',
+});
 
-export const MovieComments = sequelize.define('MovieComments', {
+MovieComments.init({
   id: {
     type: DataTypes.BIGINT,
     primaryKey: true,
@@ -24,4 +46,7 @@ export const MovieComments = sequelize.define('MovieComments', {
   },
   movieEpisodeId: DataTypes.INTEGER,
   commentsCount: DataTypes.INTEGER,
-})
+}, {
+  sequelize,
+  tableName: 'movie_comments',
+});

@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { getMovies, Movie, getMovie } from 'services/swapiService';
-import { fetchComments, postComment, fetchMovieCommentsCount, Comment } from 'services/commentsService';
+import { fetchComments, postComment, fetchMovieCommentsCount } from 'services/commentsService';
+import { Comment } from 'models/comments';
 
 interface MovieWithComments extends Movie {
-  comments_count: string;
+  comments_count: number;
 }
 
 function movieResponseFn(movieData: MovieWithComments) {
