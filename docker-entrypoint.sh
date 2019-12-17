@@ -6,7 +6,7 @@ env
 
 role=$ROLE
 
-echo "running node in env ${node_env}..."
+echo "running node in env ${NODE_ENV}..."
 node dist/server.js
 
 set +ex

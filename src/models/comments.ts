@@ -1,9 +1,11 @@
 import { Sequelize, DataTypes, Model } from 'sequelize';
-import { DB_USERNAME, DB_PASSWORD } from 'config/env.config';
+import { DB_USERNAME, DB_PASSWORD, DB_HOST, DB_DBNAME } from 'config/env.config';
 
-export const sequelize = new Sequelize('paystackdb', DB_USERNAME, DB_PASSWORD, {
+export const sequelize = new Sequelize(DB_DBNAME, DB_USERNAME, DB_PASSWORD, {
   dialect: 'postgres',
-})
+  host: DB_HOST,
+  ssl: false,
+});
 
 export class Comment extends Model {
   public id!: number;

@@ -34,7 +34,7 @@ ARG target="build"
 
 WORKDIR /app
 
-COPY package*.json .npmrc ./
+COPY package*.json ./
 RUN npm ci --only=production
 COPY --from=0 /app/dist dist
 COPY docker-entrypoint.sh /docker-entrypoint.sh

@@ -51,6 +51,7 @@ async function swapiClientGet<T>(req: Request, url: string) {
     const value = await redisClient.get(req, url);
 
     if (value !== null) {
+      req.logger.debug(`Return Response from Cache for API: ${url}`);
       return JSON.parse(value);
     }
 

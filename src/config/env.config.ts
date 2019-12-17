@@ -21,7 +21,10 @@ export const METRICS_ENABLED = isEnvTrue(process.env.METRICS_ENABLED) ? true : f
 
 checkForEnv( process.env.DB_USERNAME);
 export const DB_USERNAME = process.env.DB_USERNAME!;
+checkForEnv( process.env.DB_DBNAME);
+export const DB_DBNAME = process.env.DB_DBNAME!;
 export const DB_PASSWORD = process.env.DB_PASSWORD;
+export const DB_HOST = process.env.DB_HOST || 'localhost';
 
 checkForEnv( process.env.REDIS_HOST);
 export const REDIS_HOST = process.env.REDIS_HOST;
