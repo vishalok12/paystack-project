@@ -9,7 +9,7 @@ services:
     - DB_PASSWORD=secret
     - DB_DBNAME=paystackdb
     - DB_HOST=db
-    - REDIS_HOST=redis
+    - REDIS_URL=redis://redis:6379
     links:
     - redis
     - db

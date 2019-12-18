@@ -10,22 +10,22 @@ function isEnvTrue(env: string | undefined): boolean {
   return true;
 }
 
-function checkForEnv(env: string | undefined) {
+function checkForEnv(env: string | undefined, name: string) {
   if (!env) {
-    logger.error(`Please provide required environment variable`);
+    logger.error(`Please provide required environment variable: ${name}`);
     process.exit(1);
   }
 }
 
 export const METRICS_ENABLED = isEnvTrue(process.env.METRICS_ENABLED) ? true : false
 
-checkForEnv( process.env.DB_USERNAME);
+checkForEnv( process.env.DB_USERNAME, 'DB_USERNAME');
 export const DB_USERNAME = process.env.DB_USERNAME!;
-checkForEnv( process.env.DB_DBNAME);
+checkForEnv( process.env.DB_DBNAME, 'DB_DBNAME');
 export const DB_DBNAME = process.env.DB_DBNAME!;
 export const DB_PASSWORD = process.env.DB_PASSWORD;
 export const DB_HOST = process.env.DB_HOST || 'localhost';
 
-checkForEnv( process.env.REDIS_URL);
+checkForEnv( process.env.REDIS_URL, 'REDIS_URL');
 export const REDIS_URL = process.env.REDIS_URL!;
 export const REDIS_DB = process.env.REDIS_DB || 0;
