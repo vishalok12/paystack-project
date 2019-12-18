@@ -56,12 +56,14 @@
             "name": "sort",
             "required": false,
             "type": "string",
-            "description": "sorting order"
+            "enum": ["name", "gender", "height", "-name", "-gender", "-height"],
+            "description": "sorting order, prefix '-' to sort in descending order"
           }, {
             "in": "query",
             "name": "gender",
             "required": false,
             "type": "string",
+            "enum": ["male", "female"],
             "description": "filter by gender"
           }
         ],
