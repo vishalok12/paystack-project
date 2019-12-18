@@ -1,13 +1,18 @@
 import { Router } from 'express';
-export const movieRouter = Router();
+export const moviesRouter = Router();
+const movieRouter = Router();
 
 import { moviesHandler, movieHandler, movieCommentsHandler, movieCommentsPostHandler } from 'controllers/movies.controller';
 import { charactersHandler } from 'controllers/characters.controller';
+import { movieValidityMiddleware } from 'middleware/movieValidity.middleware';
 
-movieRouter.get('/', moviesHandler);
-movieRouter.get('/:movieId', movieHandler);
+moviesRouter.use('/:movieId', movieValidityMiddleware, movieRouter);
 
-movieRouter.get('/:movieId/characters', charactersHandler);
+moviesRouter.get('/', moviesHandler);
 
-movieRouter.get('/:movieEpisodeId/comments', movieCommentsHandler);
-movieRouter.post('/:movieEpisodeId/comments', movieCommentsPostHandler);
+movieRouter.get('/', movieHandler);
+
+movieRouter.get('/characters', charactersHandler);
+
+movieRouter.get('/comments', movieCommentsHandler);
+movieRouter.post('/comments', movieCommentsPostHandler);

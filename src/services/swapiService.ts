@@ -1,10 +1,12 @@
 import * as axiosClient from 'axios';
 import { Request } from 'express';
 import { getRedisClient } from './redisService';
+import { APIError } from 'exceptions/apiError';
+import { ErrorCode } from 'exceptions/errorCode';
 
 const swapiClient = axiosClient.default.create({
   baseURL: 'https://swapi.co/api/',
-  timeout: 10000,
+  timeout: 40000,
 });
 
 export interface Movie {
@@ -84,20 +86,24 @@ function parseCharactersList(list: Character[]): Character[] {
 }
 
 export async function getMovies(req: Request) {
-  req.logger.debug('fetching movies list');
-  let results: Movie[] = [];
+  try {
+    req.logger.debug('fetching movies list');
+    let results: Movie[] = [];
 
-  let data = await swapiClientGet<MoviesData>(req, '/films');
-  results = results.concat(data.results);
-
-  while (data.next) {
-    data = await swapiClientGet<MoviesData>(req, data.next);
+    let data = await swapiClientGet<MoviesData>(req, '/films');
     results = results.concat(data.results);
+
+    while (data.next) {
+      data = await swapiClientGet<MoviesData>(req, data.next);
+      results = results.concat(data.results);
+    }
+
+    req.logger.debug('movies response came');
+
+    return results;
+  } catch (e) {
+    throw new APIError(ErrorCode.InternalServerError, 'Internal Server Error');
   }
-
-  req.logger.debug('movies response came');
-
-  return results;
 }
 
 export async function getMovie(req: Request, id: string) {
@@ -109,24 +115,35 @@ export async function getMovie(req: Request, id: string) {
     return data;
   } catch (e) {
     req.logger.error(`Error while fetching movie with id: ${id}`)
-    throw e;
+
+    if (e.isAxiosError && e.response && e.response.status === 404) {
+      throw new APIError(ErrorCode.MovieNotAvailable, `Movie with id: ${id} not found`);
+    }
+
+    throw new APIError(ErrorCode.InternalServerError, 'Internal Server Error');
   }
 }
 
-export async function getCharacterListForMovieId(req: Request, movieId: string) {
-  let results: Character[] = [];
+export async function getCharacterListForMovie(req: Request, movie: Movie) {
+  try {
+    let results: Character[] = [];
 
-  const movie = await getMovie(req, movieId);
+    req.logger.debug(`fetching characters`);
 
-  req.logger.debug(`fetching characters`);
+    const charactersPromise = movie.characters.map((characterAPIPath: string) => {
+      return swapiClientGet<Character>(req, characterAPIPath)
+    });
 
-  const charactersPromise = movie.characters.map((characterAPIPath: string) => {
-    return swapiClientGet<Character>(req, characterAPIPath)
-  });
+    results = await Promise.all(charactersPromise);
 
-  results = await Promise.all(charactersPromise);
+    req.logger.debug(`received characters`);
 
-  req.logger.debug(`received characters`);
+    return parseCharactersList(results);
+  } catch (error) {
+    if (error.name === 'APIError') {
+      throw error;
+    }
 
-  return parseCharactersList(results);
+    throw new APIError(ErrorCode.InternalServerError, 'Internal Server Error');
+  }
 }

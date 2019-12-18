@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { movieRouter } from './movies';
+import { moviesRouter } from './movies';
 export const apiRouter = Router();
 
-apiRouter.use('/movies', movieRouter);
+apiRouter.use('/movies', moviesRouter);

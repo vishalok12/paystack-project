@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getMovies, Movie, getMovie } from 'services/swapiService';
+import { getMovies, Movie } from 'services/swapiService';
 import { fetchComments, postComment, fetchMovieCommentsCount } from 'services/commentsService';
 import { Comment } from 'models/comments';
 
@@ -77,7 +77,7 @@ export async function moviesHandler(req: Request, res: Response, next: NextFunct
 
 export async function movieHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const movie = await getMovie(req, req.params.movieId);
+    const movie = req.movie!;
     (movie as MovieWithComments).comments_count = await fetchMovieCommentsCount(movie.episode_id);
 
     return res.send(movieResponseFn(movie as MovieWithComments));
