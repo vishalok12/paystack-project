@@ -26,7 +26,6 @@ export const DB_DBNAME = process.env.DB_DBNAME!;
 export const DB_PASSWORD = process.env.DB_PASSWORD;
 export const DB_HOST = process.env.DB_HOST || 'localhost';
 
-checkForEnv( process.env.REDIS_HOST);
-export const REDIS_HOST = process.env.REDIS_HOST;
-export const REDIS_PORT = process.env.REDIS_PORT ? Number(process.env.REDIS_PORT) : 6379;
+checkForEnv( process.env.REDIS_URL);
+export const REDIS_URL = process.env.REDIS_URL!;
 export const REDIS_DB = process.env.REDIS_DB || 0;

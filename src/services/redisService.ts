@@ -1,6 +1,6 @@
 import * as redis from 'redis';
 import { Request } from 'express';
-import { REDIS_PORT, REDIS_HOST, REDIS_DB } from '../config/env.config';
+import { REDIS_URL, REDIS_DB } from '../config/env.config';
 import { logger } from './loggerService';
 
 let redisClient: RedisClient;
@@ -10,7 +10,7 @@ class RedisClient {
   initialized: boolean;
 
   constructor() {
-    this.client = redis.createClient(REDIS_PORT, REDIS_HOST);
+    this.client = redis.createClient(REDIS_URL);
     this.initialized = false;
   }
 
