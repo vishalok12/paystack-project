@@ -48,7 +48,13 @@ export interface CharacterListData {
 async function swapiClientGet<T>(req: Request, url: string) {
   const redisClient = await getRedisClient();
   try {
-    const value = await redisClient.get(req, url);
+    let value = null;
+    try {
+      value = await redisClient.get(req, url);
+    } catch (e) {
+      // ignore redis error
+      req.logger.warn('Error in redis caching');
+    }
 
     if (value !== null) {
       req.logger.debug(`Return Response from Cache for API: ${url}`);
