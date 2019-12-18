@@ -1,32 +1,32 @@
 import { Comment, MovieComments } from 'models/comments';
 import { Request } from 'express';
 
-export async function fetchComments(req: Request, movieEpisodeId: number) {
+export async function fetchComments(req: Request, movieId: number) {
   const comments = await Comment.findAll({
     where: {
-      movieEpisodeId,
+      movieId,
     },
   })
 
   return comments;
 }
 
-export async function postComment(req: Request, movieEpisodeId: number, message: string) {
+export async function postComment(req: Request, movieId: number, message: string) {
   const comment = await Comment.create({
     message,
-    movieEpisodeId: movieEpisodeId,
+    movieId: movieId,
     ipAddress: req.ip,
   })
 
   const movieComment = await MovieComments.findOne({
     where: {
-      movieEpisodeId,
+      movieId,
     },
   })
 
   if (!movieComment) {
     await MovieComments.create({
-      movieEpisodeId: movieEpisodeId,
+      movieId: movieId,
       commentsCount: 1,
     })
   } else {
@@ -34,7 +34,7 @@ export async function postComment(req: Request, movieEpisodeId: number, message:
       commentsCount: movieComment.commentsCount + 1,
     }, {
       where: {
-        movieEpisodeId,
+        movieId,
       },
     })
   }
@@ -42,10 +42,10 @@ export async function postComment(req: Request, movieEpisodeId: number, message:
   return comment;
 }
 
-export async function fetchMovieCommentsCount(movieEpisodeId: number) {
+export async function fetchMovieCommentsCount(movieId: number) {
   const movieComments = await MovieComments.findOne({
     where: {
-      movieEpisodeId,
+      movieId,
     },
   });
 

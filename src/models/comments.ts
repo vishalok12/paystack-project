@@ -10,7 +10,7 @@ export const sequelize = new Sequelize(DB_DBNAME, DB_USERNAME, DB_PASSWORD, {
 export class Comment extends Model {
   public id!: number;
   public message!: string;
-  public movieEpisodeId!: number;
+  public movieId!: number;
   public ipAddress!: string;
 
   public readonly createdAt!: Date;
@@ -19,7 +19,7 @@ export class Comment extends Model {
 
 export class MovieComments extends Model {
   public id!: number;
-  public movieEpisodeId!: number;
+  public movieId!: number;
   public commentsCount!: number;
 
   public readonly createdAt!: Date;
@@ -33,7 +33,7 @@ Comment.init({
     autoIncrement: true,
   },
   message: DataTypes.STRING,
-  movieEpisodeId: DataTypes.INTEGER,
+  movieId: DataTypes.INTEGER,
   ipAddress: DataTypes.STRING,
 }, {
   sequelize,
@@ -46,7 +46,7 @@ MovieComments.init({
     primaryKey: true,
     autoIncrement: true,
   },
-  movieEpisodeId: DataTypes.INTEGER,
+  movieId: DataTypes.INTEGER,
   commentsCount: DataTypes.INTEGER,
 }, {
   sequelize,

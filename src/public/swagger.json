@@ -75,7 +75,7 @@
         }
       }
     },
-    "/movies/{movieEpisodeId}/comments": {
+    "/movies/{movieId}/comments": {
       "get": {
         "description": "It returns movie comments in reverse chronological order",
         "tags": [
@@ -85,10 +85,10 @@
         "parameters": [
           {
             "in": "path",
-            "name": "movieEpisodeId",
+            "name": "movieId",
             "required": true,
             "type": "string",
-            "description": "movie episode id for list of comments"
+            "description": "movie id for list of comments"
           }
         ],
         "produces": ["application/json"],
@@ -107,10 +107,10 @@
         "parameters": [
           {
             "in": "path",
-            "name": "movieEpisodeId",
+            "name": "movieId",
             "required": true,
             "type": "string",
-            "description": "episode id for movie to comment"
+            "description": "movie id for movie to comment"
           }, {
             "in": "body",
             "name": "comment",

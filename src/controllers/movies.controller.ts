@@ -16,6 +16,7 @@ function movieResponseFn(movieData: MovieWithComments) {
     producer,
     episode_id,
     comments_count,
+    url,
   } = movieData;
 
   return {
@@ -26,6 +27,7 @@ function movieResponseFn(movieData: MovieWithComments) {
     director,
     producer,
     comments_count,
+    url,
   }
 }
 
@@ -45,7 +47,8 @@ function sortComments(comments: Comment[]): Comment[] {
 
 async function fetchMovieComments(movies: Movie[]): Promise<MovieWithComments[]> {
   const commentsCountPromises = movies.map(movie => {
-    return fetchMovieCommentsCount(movie.episode_id);
+    const movieId = Number(movie.url.split('/')[5]);
+    return fetchMovieCommentsCount(movieId);
   })
 
   const commentsCount = await Promise.all(commentsCountPromises);
@@ -78,7 +81,9 @@ export async function moviesHandler(req: Request, res: Response, next: NextFunct
 export async function movieHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const movie = req.movie!;
-    (movie as MovieWithComments).comments_count = await fetchMovieCommentsCount(movie.episode_id);
+    const movieId = Number(movie.url.split('/')[5]);
+
+    (movie as MovieWithComments).comments_count = await fetchMovieCommentsCount(movieId);
 
     return res.send(movieResponseFn(movie as MovieWithComments));
   } catch (e) {
@@ -88,8 +93,8 @@ export async function movieHandler(req: Request, res: Response, next: NextFuncti
 
 export async function movieCommentsHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const movieEpisodeId = Number(req.params.movieEpisodeId);
-    const comments = await fetchComments(req, movieEpisodeId);
+    const movieId = Number(req.movie!.url.split('/')[5]);
+    const comments = await fetchComments(req, movieId);
     const sortedComments = sortComments(comments);
 
     return res.send({
@@ -103,7 +108,7 @@ export async function movieCommentsHandler(req: Request, res: Response, next: Ne
 
 export async function movieCommentsPostHandler(req: Request, res: Response, next: NextFunction) {
   try {
-    const movieEpisodeId = Number(req.params.movieEpisodeId);
+    const movieId = Number(req.movie!.url.split('/')[5]);
     const message = req.body.message;
 
     if (message.length > 500) {
@@ -114,7 +119,7 @@ export async function movieCommentsPostHandler(req: Request, res: Response, next
       })
     }
 
-    const comment = await postComment(req, movieEpisodeId, message);
+    const comment = await postComment(req, movieId, message);
     return res.send(comment);
   } catch (e) {
     return next(e);

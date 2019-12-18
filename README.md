@@ -32,11 +32,11 @@ The API accepts sort and filter query.
 To sort in descending order, pass with prefix '-'.
 3. Fetch Comments for a movie:
 ```
-/api/movies/:movieEpisodeId/comments
+/api/movies/:movieId/comments
 ```
 4. Post comment for a movie:
 ```
-/api/movies/:movieEpisodeId/comments
+/api/movies/:movieId/comments
 
 Data: {
   "message": '...'
