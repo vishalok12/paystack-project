@@ -18,7 +18,7 @@
     "lint:fix": "npm run lint -- --fix",
     "copy-static-assets": "exec ./copyStaticAssets.sh",
     "check-coverage": "nyc check-coverage",
-    "build": "npm run lint && npm run test-coverage && npm run check-coverage && npm run build-ts",
+    "build": "npm run lint && npm run build-ts && npm run copy-static-assets",
     "test": "NODE_ENV=test ts-mocha -p tsconfig.json --require test-entry.ts test/**/*.spec.ts --exit",
     "int-test": "NODE_ENV=test ts-mocha -p tsconfig.json --require test-entry.ts integration-test/**/*.spec.ts --exit",
     "test-coverage": "NODE_ENV=test TS_NODE_PROJECT=tsconfig.json nyc ts-mocha --require source-map-support/register --require test-entry.ts test/**/*.spec.ts --exit",
