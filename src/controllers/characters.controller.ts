@@ -1,14 +1,23 @@
 import { Request, Response, NextFunction } from 'express';
 import { Character, getCharacterListForMovie } from 'services/swapiService';
 import arraySort = require('array-sort');
+import { convertFromCMToFeetAndInches } from '../utils';
 
-function characterResponseFn(characters: Character[]) {
+interface ResponseCharacter {
+  name: string;
+  gender: string;
+  height: number | null;
+  mass: string;
+  created: string;
+  edited: string;
+}
+
+function characterResponseFn(characters: Character[]): ResponseCharacter[] {
   return characters.map(character => {
     const {
       name,
       gender,
-      height_in_cm,
-      height_in_feet_inches,
+      height,
       mass,
       created,
       edited,
@@ -17,8 +26,7 @@ function characterResponseFn(characters: Character[]) {
     return {
       name,
       gender,
-      height_in_cm,
-      height_in_feet_inches,
+      height,
       mass,
       created,
       edited,
@@ -58,12 +66,16 @@ export async function charactersHandler(req: Request, res: Response, next: NextF
 
     const characterList = await getCharacterListForMovie(req, req.movie!);
     const characterFormattedList = characterResponseFn(characterList);
-    const filteredCharacterList = filterFn('gender', req.query.gender)(characterFormattedList);
-    const sortedCharacterList = sortFn(sortProperty)(filteredCharacterList);
+    const filteredCharacterList = filterFn<ResponseCharacter>('gender', req.query.gender)(characterFormattedList);
+    const sortedCharacterList = sortFn<ResponseCharacter>(sortProperty)(filteredCharacterList);
+
+    const totalHeightInCM = sortedCharacterList.reduce((total, character) => total + (character.height || 0), 0);
 
     res.send({
       results: sortedCharacterList,
       total: sortedCharacterList.length,
+      total_height_in_cm: totalHeightInCM,
+      total_height_in_ft_inches: convertFromCMToFeetAndInches(totalHeightInCM),
     });
   } catch (e) {
     next(e);

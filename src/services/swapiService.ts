@@ -31,9 +31,7 @@ export interface MoviesData {
 export interface Character {
   name: string,
   gender: string,
-  height: number,
-  height_in_cm?: number | null,
-  height_in_feet_inches?: string,
+  height: number | null,
   mass: string,
   hair_color: string,
   created: string,
@@ -76,27 +74,10 @@ async function swapiClientGet<T>(req: Request, url: string) {
   }
 }
 
-function convertFromCMToFeetAndInches(value: number): string {
-  const valueInInches = value * 0.3937;
-
-  if (valueInInches < 12) {
-    return `${(valueInInches * 100) / 100} inches`;
-  }
-
-  const valueInFeet = Math.floor(valueInInches / 12);
-  const remainingValueInInches = Math.floor((valueInInches % 12) * 100) / 100;
-
-  if (!remainingValueInInches) {
-    return `${valueInFeet}ft`;
-  }
-
-  return `${valueInFeet}ft ${remainingValueInInches} inches`;
-}
-
 function parseCharactersList(list: Character[]): Character[] {
   return list.map(character => {
-    character.height_in_cm = isNaN(character.height) ? null : Number(character.height);
-    character.height_in_feet_inches = character.height_in_cm ? convertFromCMToFeetAndInches(character.height_in_cm) : 'unknown';
+    // @ts-ignore
+    character.height = isNaN(character.height) ? null : Number(character.height);
 
     return character;
   })
