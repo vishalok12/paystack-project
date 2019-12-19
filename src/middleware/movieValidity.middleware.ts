@@ -1,11 +1,19 @@
 import { Request, Response, NextFunction } from 'express';
-import { getMovie } from 'services/swapiService';
+import { getMovies } from 'services/swapiService';
 import { ErrorCode } from 'exceptions/errorCode';
+import { APIError } from 'exceptions/apiError';
 
 export async function movieValidityMiddleware(req: Request, res: Response, next: NextFunction) {
   try {
-    // set logger with Request-Id context
-    req.movie = await getMovie(req, req.params.movieId);
+    const movieId = Number(req.params.movieId);
+    const movies = await getMovies(req);
+    const movie = movies.find(movie => movie.episode_id === movieId);
+
+    if (!movie) {
+      throw new APIError(ErrorCode.MovieNotAvailable, `movie with episode id: ${movieId} does not exist`)
+    }
+
+    req.movie = movie;
 
     next();
   } catch (error) {
