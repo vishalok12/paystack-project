@@ -56,7 +56,7 @@
             "name": "sort",
             "required": false,
             "type": "string",
-            "enum": ["name", "gender", "height", "-name", "-gender", "-height"],
+            "enum": ["name", "gender", "height_in_cm", "-name", "-gender", "-height_in_cm"],
             "description": "sorting order, prefix '-' to sort in descending order"
           }, {
             "in": "query",
