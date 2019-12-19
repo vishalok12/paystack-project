@@ -31,7 +31,7 @@ class RedisClient {
 
   save(req: Request, key: string, value: string) {
     return new Promise((resolve, reject) => {
-      this.client.set(key, value, 'EX', 5 * 60, (cacheErr, success) => {
+      this.client.set(key, value, 'EX', 60 * 60, (cacheErr, success) => {
         if (cacheErr) {
           req.logger.error(`Error while saving to redis with key: ${key}`);
           return reject(cacheErr);
